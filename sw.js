@@ -14,7 +14,7 @@
    on next navigation while keeping previously visited content available offline.
    ══════════════════════════════════════════════════════════════ */
 
-const SW_VERSION = 'v7-jardin-grid-prototype-2026-05-23';
+const SW_VERSION = 'v8-typography-inter-2026-05-23';
 const SHELL_CACHE   = `semenca-shell-${SW_VERSION}`;
 const RUNTIME_CACHE = `semenca-runtime-${SW_VERSION}`;
 // Las fotos son inmutables (mismo nombre = misma imagen, nunca cambian

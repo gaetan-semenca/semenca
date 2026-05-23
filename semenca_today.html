@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180-apple.png">
 <title>Semença — Hoy en tu jardín</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 
 /* ═══════════════════════════════════════
@@ -33,7 +33,7 @@
   --sun:    #C8A03A;
   --white:  #FDFAF2;
   --font-d: 'Playfair Display', Georgia, serif;
-  --font-b: 'DM Sans', sans-serif;
+  --font-b: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-m: 'DM Mono', monospace;
   --ease:   cubic-bezier(.16,1,.3,1);
 }
@@ -45,8 +45,11 @@ body {
   background: var(--cream);
   color: var(--soil);
   font-family: var(--font-b);
-  line-height: 1.6;
+  font-size: 15.5px;
+  line-height: 1.7;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* grain texture */
@@ -171,7 +174,7 @@ body::after {
 }
 .sb-icon { font-size: 24px; }
 .sb-info {}
-.sb-name { font-family: var(--font-d); font-size: 17px; color: var(--soil); font-style: italic; }
+.sb-name { font-family: var(--font-b); font-size: 16px; font-weight: 500; color: var(--soil); letter-spacing: -.1px; }
 .sb-months { font-family: var(--font-m); font-size: 9px; color: var(--sage); letter-spacing: 1px; margin-top: 2px; }
 
 /* Month strip */
@@ -272,7 +275,7 @@ body::after {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 12px; margin-bottom: 8px;
 }
-.psc-name { font-family: var(--font-d); font-size: 17px; color: var(--soil); line-height: 1.2; }
+.psc-name { font-family: var(--font-b); font-size: 17px; font-weight: 600; color: var(--soil); line-height: 1.25; letter-spacing: -.1px; }
 .psc-stage-badge {
   display: flex; align-items: center; gap: 5px;
   padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
