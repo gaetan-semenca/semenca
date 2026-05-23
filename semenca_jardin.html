@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#3B5838">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Semença">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180-apple.png">
+<title>Semença — Mi jardín</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --soil:   #2A1E12;
+  --bark:   #4A3626;
+  --bark-lt:#7A6248;
+  --moss:   #3B5838;
+  --moss-lt:#4D7050;
+  --sage:   #78A07C;
+  --sage-lt:#A9C8AD;
+  --straw:  #E6D7B0;
+  --cream:  #F4EFE5;
+  --parch:  #EDE6D8;
+  --rust:   #B55A28;
+  --sun:    #C8A03A;
+  --white:  #FDFAF2;
+  --font-d: 'Playfair Display', Georgia, serif;
+  --font-b: 'DM Sans', sans-serif;
+  --font-m: 'DM Mono', monospace;
+  --ease:   cubic-bezier(.16,1,.3,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--white);
+  color: var(--soil);
+  font-family: var(--font-b);
+  font-size: 15px; line-height: 1.6;
+  min-height: 100vh;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 999; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  opacity: .55;
+}
+
+/* ═══════════════════════════════════════ NAV ═══════════════════════════════════════ */
+.nav {
+  position: sticky; top: 0; z-index: 400;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 52px;
+  background: rgba(253,250,242,.93);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(42,30,18,.06);
+}
+.nav-logo { font-family: var(--font-d); font-size: 18px; color: var(--soil); text-decoration: none; position: relative; }
+.nav-logo em { color: var(--moss); font-style: italic; }
+.nav-logo::after {
+  content: 'Cultiva tu autonomía';
+  position: absolute; top: 100%; left: 0; margin-top: 1px;
+  font-family: var(--font-d); font-size: 10.5px;
+  color: var(--sage); font-style: italic;
+  font-weight: 400; letter-spacing: .1px;
+  white-space: nowrap; opacity: .75; pointer-events: none;
+}
+@media (max-width: 360px) { .nav-logo::after { display: none; } }
+.nav-links {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 28px; align-items: center;
+}
+.nav-link {
+  font-family: var(--font-m); font-size: 9.5px;
+  color: var(--sage); letter-spacing: 2px; text-transform: uppercase;
+  text-decoration: none; transition: color .18s;
+  padding-bottom: 2px; border-bottom: 1px solid transparent;
+}
+.nav-link.active { color: var(--soil); border-bottom-color: var(--moss); }
+.nav-link:hover  { color: var(--bark); }
+.nav-r { display: flex; align-items: center; gap: 14px; }
+.sob-settings-btn { background: transparent; border: none; cursor: pointer; font-size: 18px; color: var(--bark-lt); padding: 4px 8px; }
+.sob-settings-btn:hover { color: var(--moss); }
+
+/* ═══════════════════════════════════════ PAGE HEADER ═══════════════════════════════════════ */
+.page-head {
+  padding: 36px 40px 24px;
+  border-bottom: 1px solid rgba(42,30,18,.06);
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 24px; align-items: end;
+}
+.page-eyebrow {
+  font-family: var(--font-m); font-size: 9.5px;
+  color: var(--sage); letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.page-title {
+  font-family: var(--font-d);
+  font-size: clamp(28px, 4vw, 42px);
+  color: var(--soil); line-height: 1.05; letter-spacing: -.6px;
+}
+.page-title em { color: var(--moss); font-style: italic; }
+.page-sub { font-size: 13.5px; color: var(--bark-lt); font-weight: 300; margin-top: 6px; max-width: 460px; }
+.page-actions { display: flex; align-items: center; gap: 14px; }
+.count-pill {
+  font-family: var(--font-m); font-size: 11px;
+  color: var(--sage); letter-spacing: 1.2px; text-transform: uppercase;
+  padding: 6px 12px; background: var(--parch);
+  border: 1px solid rgba(42,30,18,.06); border-radius: 100px;
+}
+.add-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 100px;
+  background: var(--moss); color: var(--white);
+  font-family: var(--font-b); font-size: 13px; font-weight: 500;
+  border: none; cursor: pointer; transition: background .18s, transform .15s;
+}
+.add-btn:hover { background: var(--soil); transform: translateY(-1px); }
+.add-btn .plus { font-size: 18px; font-weight: 300; line-height: 1; }
+
+/* ═══════════════════════════════════════ GARDEN GRID ═══════════════════════════════════════ */
+.garden-wrap {
+  padding: 36px 40px 80px;
+  max-width: 1180px; margin: 0 auto;
+  /* En móviles estrechos, la grilla real de 10 columnas se desplaza
+     horizontalmente — preferimos preservar la geometría del jardín a
+     romperla en 4–5 columnas que ya no representan nada físico. */
+  overflow-x: auto;
+}
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(56px, 1fr));
+  gap: 10px;
+}
+.cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--parch);
+  border: 1px solid rgba(42,30,18,.08);
+  border-radius: 10px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .12s;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+.cell.empty {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(122,98,72,.06), transparent 60%),
+    var(--parch);
+}
+.cell.empty:hover {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(59,88,56,.10), transparent 60%),
+    var(--parch);
+  border-color: rgba(59,88,56,.25);
+}
+.cell.empty::before {
+  content: '+';
+  font-family: var(--font-d); font-size: 22px; font-weight: 300;
+  color: var(--sage-lt); opacity: 0;
+  transition: opacity .18s;
+}
+.cell.empty:hover::before { opacity: 1; }
+.cell.occupied {
+  background: var(--white);
+  border-color: rgba(59,88,56,.18);
+  padding: 8px;
+}
+.cell.occupied:hover { transform: translateY(-1px); border-color: rgba(59,88,56,.45); }
+.cell.occupied.dragging { opacity: .35; }
+.cell.drag-over { background: rgba(59,88,56,.10); border-color: var(--moss); }
+
+/* Asociaciones de vecindad — tonos botánicos calmos, no alarmas.
+   Mala asociación: cobre/oxidado. Buena asociación: musgo verde.
+   La señal es visible pero contemplativa: la app sugiere, no advierte. */
+.cell.bad-neighbor {
+  background: rgba(181, 90, 40, .16);
+  border-color: rgba(181, 90, 40, .55);
+  box-shadow: inset 0 0 0 1px rgba(181, 90, 40, .28);
+}
+.cell.good-neighbor {
+  background: rgba(59, 88, 56, .14);
+  border-color: rgba(59, 88, 56, .45);
+  box-shadow: inset 0 0 0 1px rgba(59, 88, 56, .22);
+}
+/* Etiqueta discreta de asociación bajo la etapa. Sin iconos, sin badges
+   gritones — sólo una línea monoespaciada calma. */
+.association-label {
+  margin-top: 4px;
+  font-family: var(--font-m);
+  font-size: 8px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.cell.bad-neighbor  .association-label { color: var(--rust); }
+.cell.good-neighbor .association-label { color: var(--moss); }
+.cell-em {
+  font-size: clamp(22px, 4vw, 32px);
+  line-height: 1; margin-bottom: 4px;
+}
+.cell-photo {
+  width: 100%; height: 60%; object-fit: cover;
+  border-radius: 6px; margin-bottom: 4px;
+  display: block;
+}
+.cell-name {
+  font-family: var(--font-d); font-size: 12px;
+  color: var(--soil); line-height: 1.1;
+  text-align: center; padding: 0 4px;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
+}
+.cell-stage {
+  font-family: var(--font-m); font-size: 8.5px;
+  color: var(--sage); letter-spacing: .8px; text-transform: uppercase;
+  margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cell-remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(181,90,40,.85); color: white;
+  font-size: 11px; line-height: 1; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0;
+  transition: opacity .15s;
+}
+.cell.occupied:hover .cell-remove,
+.cell.occupied:focus-within .cell-remove { opacity: 1; }
+@media (hover: none) { .cell-remove { opacity: 1; } }
+
+/* Empty hint overlay when the entire garden is empty */
+.garden-empty-hint {
+  margin-top: 30px; text-align: center;
+  font-size: 13px; color: var(--sage-lt); font-weight: 300;
+}
+
+/* ═══════════════════════════════════════ MODAL — DATE ═══════════════════════════════════════ */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 800;
+  background: rgba(42,30,18,.45); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 16px;
+  padding: 36px; max-width: 420px; width: 90%;
+  box-shadow: 0 24px 64px rgba(42,30,18,.2);
+  animation: modal-in .3s var(--ease) both;
+}
+@keyframes modal-in { from { opacity:0; transform:translateY(16px) scale(.97); } to { opacity:1; transform:none; } }
+.modal-title { font-family: var(--font-d); font-size: 22px; color: var(--soil); margin-bottom: 6px; }
+.modal-sub   { font-size: 13.5px; color: var(--bark-lt); font-weight: 300; margin-bottom: 24px; line-height: 1.7; }
+.form-label  { display: block; font-family: var(--font-m); font-size: 10px; color: var(--sage); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.form-input  { width: 100%; padding: 10px 14px; border: 1px solid rgba(42,30,18,.16); border-radius: 8px; font-family: var(--font-b); font-size: 14px; color: var(--soil); background: var(--white); }
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+.btn-prim {
+  flex: 1; padding: 11px 22px; border-radius: 100px;
+  background: var(--moss); color: var(--white);
+  font-family: var(--font-b); font-size: 14px; font-weight: 500;
+  border: none; cursor: pointer; transition: background .18s;
+}
+.btn-prim:hover { background: var(--soil); }
+.btn-sec {
+  padding: 11px 22px; border-radius: 100px;
+  background: transparent; color: var(--bark-lt);
+  font-family: var(--font-b); font-size: 14px;
+  border: 1px solid rgba(42,30,18,.14); cursor: pointer; transition: color .18s, border-color .18s;
+}
+.btn-sec:hover { color: var(--soil); border-color: rgba(42,30,18,.3); }
+
+/* ═══════════════════════════════════════ MODAL — PICKER ═══════════════════════════════════════ */
+.picker-backdrop {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(42,30,18,.45); backdrop-filter: blur(6px);
+  display: none; align-items: stretch; justify-content: center;
+}
+.picker-backdrop.open { display: flex; }
+.picker {
+  background: var(--white); border-radius: 16px;
+  max-width: 680px; width: 92%; max-height: 84vh;
+  margin: auto;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 64px rgba(42,30,18,.2);
+  animation: modal-in .3s var(--ease) both;
+}
+.picker-head {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid rgba(42,30,18,.06);
+}
+.picker-title { font-family: var(--font-d); font-size: 20px; color: var(--soil); margin-bottom: 4px; }
+.picker-sub   { font-size: 13px; color: var(--bark-lt); font-weight: 300; }
+.picker-search {
+  margin: 14px 0 0; display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border: 1px solid rgba(42,30,18,.14); border-radius: 100px;
+}
+.picker-search input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: var(--font-b); font-size: 14px; color: var(--soil);
+}
+.picker-body {
+  padding: 18px 24px 24px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+}
+.pcard {
+  padding: 14px 10px; border-radius: 10px;
+  background: var(--parch); border: 1px solid rgba(42,30,18,.06);
+  text-align: center; cursor: pointer; transition: background .18s, transform .12s;
+}
+.pcard:hover { background: var(--white); border-color: rgba(59,88,56,.35); transform: translateY(-1px); }
+.pcard-em { font-size: 26px; line-height: 1; margin-bottom: 6px; }
+.pcard-name { font-family: var(--font-d); font-size: 13px; color: var(--soil); line-height: 1.2; }
+.pcard-lat  { font-family: var(--font-b); font-size: 10.5px; color: var(--sage); font-style: italic; margin-top: 2px; }
+.picker-foot {
+  padding: 12px 24px 18px; display: flex; justify-content: flex-end;
+}
+
+/* ═══════════════════════════════════════ TOAST ═══════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: rgba(42,30,18,.9); color: var(--straw);
+  padding: 9px 20px; border-radius: 100px; font-size: 13px;
+  font-family: var(--font-b); opacity: 0; transition: opacity .22s;
+  pointer-events: none; z-index: 9000; white-space: nowrap;
+}
+.toast.on { opacity: 1; }
+
+/* ═══════════════════════════════════════ RESPONSIVE ═══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .nav { padding: 0 18px; }
+  .nav-links { display: none; }
+  .page-head { padding: 28px 18px 18px; grid-template-columns: 1fr; }
+  .page-actions { justify-content: flex-start; }
+  /* Conservamos las 10 columnas reales (la grilla es un mapa físico,
+     no un dashboard responsivo). En pantallas estrechas, el contenedor
+     desplaza horizontalmente vía .garden-wrap { overflow-x: auto }. */
+  .garden-wrap { padding: 24px 18px 60px; }
+  .garden-grid { gap: 8px; }
+  .modal { padding: 28px 22px; }
+}
+@media (max-width: 480px) {
+  .cell-name { font-size: 11px; }
+  .cell-stage { font-size: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Shared modules -->
+<script src="plants.js"></script>
+<script src="storage.js"></script>
+<script src="regions.js"></script>
+<script src="i18n.js"></script>
+<script src="garden.js"></script>
+<script src="onboarding.js"></script>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="semenca_landing_v3.html" class="nav-logo">Semen<em>ça</em></a>
+  <div class="nav-links">
+    <a class="nav-link" href="semenca_today.html" id="nlHoy">Hoy</a>
+    <a class="nav-link active" href="semenca_jardin.html" id="nlJardin">Mi jardín</a>
+    <a class="nav-link" href="semenca_explorer.html" id="nlPlantas">Plantas</a>
+  </div>
+  <div class="nav-r">
+    <button class="sob-settings-btn" onclick="SemencaOnboarding.openSettings()" aria-label="Ajustes" title="Ajustes">⚙</button>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<header class="page-head">
+  <div>
+    <div class="page-eyebrow">Mi jardín</div>
+    <h1 class="page-title">Tu <em>mapa</em> de plantas</h1>
+    <p class="page-sub" id="pageSub">Una rejilla calma para acompañar lo que cultivas. Toca una celda vacía para añadir, arrastra para reordenar.</p>
+  </div>
+  <div class="page-actions">
+    <span class="count-pill" id="gardenCount">0 plantas</span>
+    <button class="add-btn" onclick="openPickerForNextAvailable()">
+      <span class="plus">+</span> <span>Añadir planta</span>
+    </button>
+  </div>
+</header>
+
+<!-- GARDEN GRID -->
+<main class="garden-wrap">
+  <div class="garden-grid" id="gardenGrid"></div>
+  <div class="garden-empty-hint" id="emptyHint" style="display:none">
+    Tu jardín todavía no tiene plantas. Toca cualquier celda para empezar.
+  </div>
+</main>
+
+<!-- PICKER MODAL (plant catalog) -->
+<div class="picker-backdrop" id="pickerBackdrop">
+  <div class="picker" role="dialog" aria-modal="true">
+    <div class="picker-head">
+      <div class="picker-title">¿Qué quieres cultivar?</div>
+      <div class="picker-sub" id="pickerSubLine">Elige una planta del catálogo.</div>
+      <div class="picker-search">
+        <span style="color:var(--sage-lt);font-size:14px">⌕</span>
+        <input type="text" id="pickerSearch" placeholder="Buscar una planta…" oninput="renderPicker()">
+      </div>
+    </div>
+    <div class="picker-body" id="pickerBody"></div>
+    <div class="picker-foot">
+      <button class="btn-sec" onclick="closePicker()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- DATE MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-title">¿Cuándo la sembraste?</div>
+    <p class="modal-sub">Indica la fecha aproximada. Semença calculará la etapa actual.</p>
+    <label class="form-label" for="modalDate">Fecha de siembra</label>
+    <input class="form-input" type="date" id="modalDate">
+    <div class="modal-actions">
+      <button class="btn-prim" onclick="confirmAdd()">Añadir al jardín</button>
+      <button class="btn-sec"  onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   STATE + HELPERS
+══════════════════════════════════════════════ */
+const Garden    = window.SemencaGarden;
+const Storage   = window.SemencaStorage;
+const I18n      = window.SemencaI18n;
+const CATALOGUE = window.SEMENCA_PLANTS;
+
+const GRID_COLS = 10;
+const GRID_ROWS = 25;
+const TOTAL_CELLS = GRID_COLS * GRID_ROWS;
+
+let myGarden       = [];   // [{plantId, sowDate, zone, instanceId, gridPos}, ...]
+let pendingPlantId = null; // plant being added via date modal
+let pendingPos     = null; // grid position to add into (or null = next available)
+let draggingFrom   = null; // instanceId currently being dragged
+
+/* Loads garden from storage, ensures instanceIds and gridPos for any entries
+   that lack them (legacy migration). Saving back through Storage.saveGarden
+   triggers the global semenca:gardenchange event automatically. */
+function load() {
+  let g = Garden.ensureInstanceIds(Storage.loadGarden());
+  // Migrate gridPos: assign first available slots to entries missing it.
+  const used = new Set(g.filter(e => Number.isInteger(e.gridPos)).map(e => e.gridPos));
+  let next = 0;
+  let migrated = false;
+  g.forEach(e => {
+    if (!Number.isInteger(e.gridPos)) {
+      while (used.has(next) && next < TOTAL_CELLS) next++;
+      if (next < TOTAL_CELLS) { e.gridPos = next; used.add(next); migrated = true; }
+    }
+  });
+  if (migrated) Storage.saveGarden(g);
+  myGarden = g;
+}
+
+function findEntryAt(pos) { return myGarden.find(e => e.gridPos === pos) || null; }
+function findEntryById(instanceId) { return myGarden.find(e => e.instanceId === instanceId) || null; }
+function firstAvailablePos() {
+  const used = new Set(myGarden.map(e => e.gridPos));
+  for (let i = 0; i < TOTAL_CELLS; i++) if (!used.has(i)) return i;
+  return -1;
+}
+
+/* ─── Vecindad ────────────────────────────────────────────────
+   Devuelve las posiciones ortogonales (arriba, abajo, izquierda,
+   derecha) de una celda. Sin diagonales. Evita los falsos vecinos
+   entre fin de línea y principio de la siguiente. */
+function getNeighborPositions(pos) {
+  const col = pos % GRID_COLS;
+  const out = [];
+  if (col > 0)                          out.push(pos - 1);              // izquierda
+  if (col < GRID_COLS - 1)              out.push(pos + 1);              // derecha
+  if (pos - GRID_COLS >= 0)             out.push(pos - GRID_COLS);      // arriba
+  if (pos + GRID_COLS < TOTAL_CELLS)    out.push(pos + GRID_COLS);      // abajo
+  return out;
+}
+
+/* Relación de vecindad: "bad" > "good" > null.
+   - mala asociación si A.avoid contiene B  O  B.avoid contiene A
+   - buena asociación si A.companions contiene B  O  B.companions contiene A
+   - en caso de coexistencia (vecinos mixtos), gana el rojo. */
+function getNeighborRelation(entry) {
+  if (!entry || !Number.isInteger(entry.gridPos)) return null;
+  const plant = CATALOGUE.find(p => p.id === entry.plantId);
+  if (!plant) return null;
+  const myAvoid      = plant.avoid      || [];
+  const myCompanions = plant.companions || [];
+  const neighbors = getNeighborPositions(entry.gridPos);
+  let foundGood = false;
+  for (const npos of neighbors) {
+    const nb = findEntryAt(npos);
+    if (!nb) continue;
+    const nbPlant = CATALOGUE.find(p => p.id === nb.plantId);
+    // Mala asociación — prioritaria, retorno inmediato.
+    if (myAvoid.includes(nb.plantId)) return 'bad';
+    if (nbPlant && (nbPlant.avoid || []).includes(plant.id)) return 'bad';
+    // Buena asociación — recordamos sin retornar, por si después aparece un avoid.
+    if (myCompanions.includes(nb.plantId)) foundGood = true;
+    if (nbPlant && (nbPlant.companions || []).includes(plant.id)) foundGood = true;
+  }
+  return foundGood ? 'good' : null;
+}
+
+/* ══════════════════════════════════════════════
+   RENDER GRID
+══════════════════════════════════════════════ */
+function daysSince(dateStr) { return Garden.daysSince(dateStr); }
+function getStageIndex(plant, days) { return Garden.getStageIndex(plant, days); }
+
+function renderGrid() {
+  const grid = document.getElementById('gardenGrid');
+  grid.innerHTML = '';
+  const count = myGarden.length;
+  document.getElementById('gardenCount').textContent =
+    count === 0 ? '0 plantas' : (count === 1 ? '1 planta' : count + ' plantas');
+  document.getElementById('emptyHint').style.display = count === 0 ? '' : 'none';
+
+  for (let pos = 0; pos < TOTAL_CELLS; pos++) {
+    const entry = findEntryAt(pos);
+    const cell = document.createElement(entry ? 'a' : 'div');
+    cell.className = 'cell ' + (entry ? 'occupied' : 'empty');
+    cell.dataset.pos = String(pos);
+
+    if (entry) {
+      const plant = CATALOGUE.find(p => p.id === entry.plantId);
+      if (!plant) continue;
+      const d = daysSince(entry.sowDate);
+      const idx = getStageIndex(plant, d);
+      const stage = plant.stages[idx];
+      const stageName = (stage && stage.name && (stage.name.es || stage.name.fr)) || '';
+      cell.href = `semenca_plante.html?id=${plant.id}`;
+      cell.title = (plant.name.es || plant.id) + ' · ' + stageName;
+      cell.draggable = true;
+      cell.dataset.instanceId = entry.instanceId;
+
+      // Detección de asociación de vecindad — bad > good > neutral.
+      // Se recalcula en cada renderGrid (add / remove / drag / drop / swap
+      // pasan todos por el listener semenca:gardenchange → render).
+      const relation = getNeighborRelation(entry);
+      let assocLabelHtml = '';
+      if (relation === 'bad') {
+        cell.classList.add('bad-neighbor');
+        cell.title = cell.title + ' · Vecindad a evitar';
+        assocLabelHtml = '<div class="association-label">Mala asociación</div>';
+      } else if (relation === 'good') {
+        cell.classList.add('good-neighbor');
+        cell.title = cell.title + ' · Buena vecindad';
+        assocLabelHtml = '<div class="association-label">Buena asociación</div>';
+      }
+
+      const photoHtml = plant.photo
+        ? `<img class="cell-photo" src="${plant.photo}" alt="" loading="lazy" decoding="async"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'cell-em',textContent:'${plant.emoji}'}))">`
+        : `<div class="cell-em">${plant.emoji || '🌱'}</div>`;
+
+      cell.innerHTML =
+        photoHtml +
+        `<div class="cell-name">${plant.name.es || plant.id}</div>` +
+        `<div class="cell-stage">${stageName}</div>` +
+        assocLabelHtml +
+        `<button class="cell-remove" aria-label="Quitar" title="Quitar"
+                 onclick="removeAt(event, ${pos})">✕</button>`;
+
+      // Drag handlers (occupied)
+      cell.addEventListener('dragstart', onDragStart);
+      cell.addEventListener('dragend', onDragEnd);
+    } else {
+      cell.addEventListener('click', () => openPickerForCell(pos));
+    }
+    // Drop targets (all cells)
+    cell.addEventListener('dragover', onDragOver);
+    cell.addEventListener('dragleave', onDragLeave);
+    cell.addEventListener('drop', onDrop);
+    grid.appendChild(cell);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   ADD FLOW
+══════════════════════════════════════════════ */
+function openPickerForCell(pos) {
+  pendingPos = pos;
+  pendingPlantId = null;
+  document.getElementById('pickerSubLine').textContent =
+    'Esta planta se ubicará en la celda ' + (pos + 1) + '.';
+  document.getElementById('pickerSearch').value = '';
+  renderPicker();
+  document.getElementById('pickerBackdrop').classList.add('open');
+}
+
+function openPickerForNextAvailable() {
+  const pos = firstAvailablePos();
+  if (pos < 0) {
+    showToast('Tu jardín está lleno (250 celdas).');
+    return;
+  }
+  openPickerForCell(pos);
+}
+
+function closePicker() {
+  document.getElementById('pickerBackdrop').classList.remove('open');
+  pendingPos = null;
+  pendingPlantId = null;
+}
+
+function renderPicker() {
+  const q = (document.getElementById('pickerSearch').value || '').toLowerCase().trim();
+  const body = document.getElementById('pickerBody');
+  body.innerHTML = '';
+  CATALOGUE
+    .filter(p => {
+      if (!q) return true;
+      const name = (p.name.es || '').toLowerCase();
+      const lat  = (p.latin || '').toLowerCase();
+      const cat  = (p.category || '').toLowerCase();
+      return name.includes(q) || lat.includes(q) || cat.includes(q);
+    })
+    .slice(0, 80)
+    .forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'pcard';
+      card.innerHTML =
+        `<div class="pcard-em">${p.emoji || '🌱'}</div>` +
+        `<div class="pcard-name">${p.name.es || p.id}</div>` +
+        (p.latin ? `<div class="pcard-lat">${p.latin}</div>` : '');
+      card.addEventListener('click', () => pickPlant(p.id));
+      body.appendChild(card);
+    });
+}
+
+function pickPlant(plantId) {
+  pendingPlantId = plantId;
+  document.getElementById('pickerBackdrop').classList.remove('open');
+  // Default modal date to today (local)
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  document.getElementById('modalDate').value = `${y}-${m}-${d}`;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  pendingPlantId = null;
+  pendingPos = null;
+}
+
+function confirmAdd() {
+  if (!pendingPlantId) { closeModal(); return; }
+  // If pendingPos missing (race), fall back to next available.
+  let pos = Number.isInteger(pendingPos) ? pendingPos : firstAvailablePos();
+  if (pos < 0) { showToast('Tu jardín está lleno.'); closeModal(); return; }
+  // Re-validate that the slot is still empty.
+  if (findEntryAt(pos)) {
+    const alt = firstAvailablePos();
+    if (alt < 0) { showToast('Tu jardín está lleno.'); closeModal(); return; }
+    pos = alt;
+  }
+  const sowDate = document.getElementById('modalDate').value;
+  const plant   = CATALOGUE.find(p => p.id === pendingPlantId);
+  if (!plant) { closeModal(); return; }
+  const entry = Garden.addPlant(pendingPlantId, sowDate);
+  // Attach gridPos to the new entry through updatePlantEntry — both writes
+  // trigger semenca:gardenchange but we collapse them in renderGrid (idempotent).
+  Garden.updatePlantEntry(entry.instanceId, { gridPos: pos });
+  closeModal();
+  showToast((plant.name.es || plant.id) + ' añadida a tu jardín.');
+}
+
+/* ══════════════════════════════════════════════
+   REMOVE
+══════════════════════════════════════════════ */
+function removeAt(ev, pos) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  const entry = findEntryAt(pos);
+  if (!entry) return;
+  const plant = CATALOGUE.find(p => p.id === entry.plantId);
+  Garden.removePlant(entry.instanceId);
+  showToast(((plant && plant.name.es) || 'Planta') + ' retirada.');
+}
+
+/* ══════════════════════════════════════════════
+   DRAG & DROP — move or swap by gridPos
+══════════════════════════════════════════════ */
+function onDragStart(ev) {
+  const id = ev.currentTarget.dataset.instanceId;
+  draggingFrom = id;
+  ev.currentTarget.classList.add('dragging');
+  // Required for Firefox to actually start the drag.
+  try { ev.dataTransfer.setData('text/plain', id); } catch (e) {}
+  ev.dataTransfer.effectAllowed = 'move';
+}
+function onDragEnd(ev) {
+  ev.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
+  draggingFrom = null;
+}
+function onDragOver(ev) {
+  if (!draggingFrom) return;
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = 'move';
+  ev.currentTarget.classList.add('drag-over');
+}
+function onDragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
+function onDrop(ev) {
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('drag-over');
+  if (!draggingFrom) return;
+  const targetPos = parseInt(ev.currentTarget.dataset.pos, 10);
+  const source = findEntryById(draggingFrom);
+  if (!source || !Number.isInteger(targetPos)) return;
+  if (source.gridPos === targetPos) return;
+  const target = findEntryAt(targetPos);
+  if (target) {
+    // Swap: source.gridPos <-> target.gridPos
+    const sPos = source.gridPos;
+    Garden.updatePlantEntry(source.instanceId, { gridPos: targetPos });
+    Garden.updatePlantEntry(target.instanceId, { gridPos: sPos });
+  } else {
+    // Move into empty cell
+    Garden.updatePlantEntry(source.instanceId, { gridPos: targetPos });
+  }
+  // No manual re-render here: semenca:gardenchange listener handles it.
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+let toastTmr;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(() => el.classList.remove('on'), 2400);
+}
+
+/* ══════════════════════════════════════════════
+   REACTIVITY — subscribe to storage events
+══════════════════════════════════════════════ */
+window.addEventListener('semenca:gardenchange', () => { load(); renderGrid(); });
+window.addEventListener('semenca:zonechange',   () => { renderGrid(); }); // affects nothing in grid today; safe no-op
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+load();
+renderGrid();
+SemencaOnboarding.bootstrap();
+</script>
+
+<script>
+/* PWA: register service worker (silent, defensive) */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
